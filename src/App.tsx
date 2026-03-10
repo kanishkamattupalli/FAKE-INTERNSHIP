@@ -20,7 +20,13 @@ import {
   ArrowRight,
   LogIn,
   LogOut,
-  User as UserIcon
+  User as UserIcon,
+  Sun,
+  Moon,
+  BookOpen,
+  Users,
+  ShieldQuestion,
+  CheckCircle2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { clsx, type ClassValue } from "clsx";
@@ -62,7 +68,13 @@ interface Stats {
 }
 
 export default function App() {
-  const [view, setView] = useState<"scanner" | "dashboard">("scanner");
+  const [view, setView] = useState<"scanner" | "dashboard" | "community" | "encyclopedia">("scanner");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("theme") as "light" | "dark") || "light";
+    }
+    return "light";
+  });
   const [user, setUser] = useState<User | null>(null);
   const [isGuest, setIsGuest] = useState(false);
   const [inputText, setInputText] = useState("");
@@ -78,6 +90,15 @@ export default function App() {
   const [isSignUp, setIsSignUp] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -315,7 +336,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] text-slate-900 font-sans selection:bg-indigo-100">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans selection:bg-indigo-100">
       <AnimatePresence mode="wait">
         {!user && !isGuest && view === "scanner" ? (
           <motion.div 
@@ -323,11 +344,11 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-white"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-white dark:bg-slate-950"
           >
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-50 rounded-full blur-[120px]" />
-              <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-50 rounded-full blur-[120px]" />
+              <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-50 dark:bg-indigo-900/10 rounded-full blur-[120px]" />
+              <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-50 dark:bg-emerald-900/10 rounded-full blur-[120px]" />
             </div>
 
             <div className="relative w-full max-w-md p-8 text-center">
@@ -458,24 +479,24 @@ export default function App() {
       </AnimatePresence>
 
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView("scanner")}>
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 backdrop-blur-md bg-white/80 dark:bg-slate-900/80">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setView("scanner")}>
+            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 dark:shadow-none group-hover:scale-105 transition-transform">
               <ShieldAlert size={24} />
             </div>
-            <div>
-              <h1 className="font-bold text-lg tracking-tight">InternGuard AI</h1>
-              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Scam Detection System</p>
+            <div className="hidden sm:block">
+              <h1 className="font-black text-xl tracking-tight text-slate-900 dark:text-white">InternGuard <span className="text-indigo-600">AI</span></h1>
+              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Scam Detection Engine</p>
             </div>
           </div>
           
-          <nav className="hidden sm:flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+          <nav className="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
             <button 
               onClick={() => setView("scanner")}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                view === "scanner" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                view === "scanner" ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
               )}
             >
               <Search size={16} />
@@ -485,15 +506,43 @@ export default function App() {
               onClick={() => setView("dashboard")}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                view === "dashboard" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                view === "dashboard" ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
               )}
             >
               <LayoutDashboard size={16} />
               Dashboard
             </button>
+            <button 
+              onClick={() => setView("community")}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                view === "community" ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              )}
+            >
+              <Users size={16} />
+              Community
+            </button>
+            <button 
+              onClick={() => setView("encyclopedia")}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                view === "encyclopedia" ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              )}
+            >
+              <BookOpen size={16} />
+              Encyclopedia
+            </button>
           </nav>
 
           <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-500 dark:text-slate-400 transition-all"
+              title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+            >
+              {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
+
             {user ? (
               <div className="flex items-center gap-3">
                 <div className="hidden md:block text-right">
@@ -502,12 +551,12 @@ export default function App() {
                 </div>
                 <button 
                   onClick={handleLogout}
-                  className="p-2 hover:bg-slate-100 rounded-xl text-slate-500 transition-all"
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-500 dark:text-slate-400 transition-all"
                   title="Sign Out"
                 >
                   <LogOut size={18} />
                 </button>
-                <div className="w-8 h-8 rounded-full bg-indigo-100 border border-indigo-200 overflow-hidden">
+                <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 overflow-hidden">
                   {user.photoURL ? (
                     <img src={user.photoURL} alt="User" className="w-full h-full object-cover" />
                   ) : (
@@ -530,7 +579,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 md:py-12">
+      <main className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         <AnimatePresence mode="wait">
           {view === "scanner" ? (
             <motion.div 
@@ -542,10 +591,10 @@ export default function App() {
             >
               {/* Input Section */}
               <div className="lg:col-span-5 space-y-6">
-                <section className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <section className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
                   <div className="flex items-center gap-2 mb-4">
-                    <Search size={18} className="text-indigo-600" />
-                    <h2 className="font-semibold text-slate-800">AI Scanner</h2>
+                    <Search size={18} className="text-indigo-600 dark:text-indigo-400" />
+                    <h2 className="font-semibold text-slate-800 dark:text-slate-100">AI Scanner</h2>
                   </div>
 
                   <div className="space-y-4">
@@ -553,7 +602,7 @@ export default function App() {
                     <div>
                       <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Content to Verify</label>
                       <textarea 
-                        className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm resize-none"
+                        className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm resize-none text-slate-900 dark:text-slate-100"
                         placeholder="Paste the internship description, certificate details, or any suspicious content here..."
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
@@ -567,7 +616,9 @@ export default function App() {
                         onClick={() => fileInputRef.current?.click()}
                         className={cn(
                           "relative border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all group",
-                          selectedImage ? "border-indigo-400 bg-indigo-50/30" : "border-slate-200 hover:border-indigo-400 hover:bg-slate-50"
+                          selectedImage 
+                            ? "border-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/20" 
+                            : "border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                         )}
                       >
                         <input 
@@ -605,7 +656,7 @@ export default function App() {
                     </div>
 
                     {error && (
-                      <div className="p-3 bg-rose-50 border border-rose-100 rounded-lg flex items-center gap-2 text-rose-600 text-xs font-medium">
+                      <div className="p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 rounded-lg flex items-center gap-2 text-rose-600 dark:text-rose-400 text-xs font-medium">
                         <AlertTriangle size={14} />
                         {error}
                       </div>
@@ -615,7 +666,7 @@ export default function App() {
                       <button 
                         onClick={analyzePoster}
                         disabled={isAnalyzing || (!inputText && !selectedImage)}
-                        className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-semibold text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2"
+                        className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-semibold text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-200 dark:shadow-none flex items-center justify-center gap-2"
                       >
                         {isAnalyzing ? (
                           <>
@@ -631,7 +682,7 @@ export default function App() {
                       </button>
                       <button 
                         onClick={clearInputs}
-                        className="px-4 py-3 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition-all"
+                        className="px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
                       >
                         <X size={18} />
                       </button>
@@ -677,8 +728,8 @@ export default function App() {
                       <div className={cn(
                         "rounded-2xl p-8 border shadow-sm relative overflow-hidden",
                         result.detectionResult === "FAKE" 
-                          ? "bg-rose-50 border-rose-200 text-rose-900" 
-                          : "bg-emerald-50 border-emerald-200 text-emerald-900"
+                          ? "bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-100" 
+                          : "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100"
                       )}>
                         {/* Background Pattern */}
                         <div className="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
@@ -699,10 +750,10 @@ export default function App() {
                             </p>
                           </div>
                           
-                          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 border border-white/50 flex flex-col items-center justify-center min-w-[140px]">
+                          <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-2xl p-4 border border-white/50 dark:border-slate-700/50 flex flex-col items-center justify-center min-w-[140px]">
                             <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1">Confidence</p>
                             <div className="text-3xl font-bold">{result.confidenceLevel}%</div>
-                            <div className="w-full h-1.5 bg-slate-200 rounded-full mt-2 overflow-hidden">
+                            <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-2 overflow-hidden">
                               <motion.div 
                                 initial={{ width: 0 }}
                                 animate={{ width: `${result.confidenceLevel}%` }}
@@ -719,15 +770,15 @@ export default function App() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Reasons */}
-                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
                           <div className="flex items-center gap-2 mb-4">
-                            <FileText size={18} className="text-indigo-600" />
-                            <h3 className="font-semibold text-slate-800">Analysis Summary</h3>
+                            <FileText size={18} className="text-indigo-600 dark:text-indigo-400" />
+                            <h3 className="font-semibold text-slate-800 dark:text-slate-100">Analysis Summary</h3>
                           </div>
                           <ul className="space-y-3">
                             {result.reasons.map((reason, i) => (
-                              <li key={i} className="flex gap-3 text-sm text-slate-600">
-                                <ChevronRight size={16} className="shrink-0 mt-0.5 text-slate-300" />
+                              <li key={i} className="flex gap-3 text-sm text-slate-600 dark:text-slate-400">
+                                <ChevronRight size={16} className="shrink-0 mt-0.5 text-slate-300 dark:text-slate-700" />
                                 {reason}
                               </li>
                             ))}
@@ -735,14 +786,14 @@ export default function App() {
                         </div>
 
                         {/* Red Flags */}
-                        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
                           <div className="flex items-center gap-2 mb-4">
-                            <AlertTriangle size={18} className="text-rose-500" />
-                            <h3 className="font-semibold text-slate-800">Red Flags Identified</h3>
+                            <AlertTriangle size={18} className="text-rose-500 dark:text-rose-400" />
+                            <h3 className="font-semibold text-slate-800 dark:text-slate-100">Red Flags Identified</h3>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {result.redFlags.map((flag, i) => (
-                              <span key={i} className="px-3 py-1 bg-rose-50 text-rose-600 rounded-full text-[11px] font-bold border border-rose-100">
+                              <span key={i} className="px-3 py-1 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-full text-[11px] font-bold border border-rose-100 dark:border-rose-900/30">
                                 {flag}
                               </span>
                             ))}
@@ -754,15 +805,15 @@ export default function App() {
                       </div>
 
                       {/* Suggestions */}
-                      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div className="flex items-center gap-2 mb-4">
-                          <ExternalLink size={18} className="text-indigo-600" />
-                          <h3 className="font-semibold text-slate-800">Next Steps & Verification</h3>
+                          <ExternalLink size={18} className="text-indigo-600 dark:text-indigo-400" />
+                          <h3 className="font-semibold text-slate-800 dark:text-slate-100">Next Steps & Verification</h3>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {result.suggestions.map((suggestion, i) => (
-                            <div key={i} className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm text-slate-600 flex gap-3">
-                              <div className="w-6 h-6 bg-white rounded-full border border-slate-200 flex items-center justify-center text-[10px] font-bold text-indigo-600 shrink-0">
+                            <div key={i} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 text-sm text-slate-600 dark:text-slate-400 flex gap-3">
+                              <div className="w-6 h-6 bg-white dark:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-600 flex items-center justify-center text-[10px] font-bold text-indigo-600 dark:text-indigo-400 shrink-0">
                                 {i + 1}
                               </div>
                               {suggestion}
@@ -775,40 +826,40 @@ export default function App() {
                   ) : isAnalyzing ? (
                     <div className="h-full min-h-[400px] flex flex-col items-center justify-center space-y-6 text-center">
                       <div className="relative">
-                        <div className="w-24 h-24 border-4 border-indigo-100 rounded-full animate-pulse" />
+                        <div className="w-24 h-24 border-4 border-indigo-100 dark:border-indigo-900/30 rounded-full animate-pulse" />
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <Loader2 size={40} className="text-indigo-600 animate-spin" />
+                          <Loader2 size={40} className="text-indigo-600 dark:text-indigo-400 animate-spin" />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-xl font-bold text-slate-800">Scanning for Scams</h3>
-                        <p className="text-slate-500 max-w-xs mx-auto">Our AI is analyzing language patterns, contact details, and company metadata...</p>
+                        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Scanning for Scams</h3>
+                        <p className="text-slate-500 dark:text-slate-400 max-w-xs mx-auto">Our AI is analyzing language patterns, contact details, and company metadata...</p>
                       </div>
                       <div className="flex gap-2">
-                        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                        <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" />
+                        <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                        <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                        <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" />
                       </div>
                     </div>
                   ) : (
-                    <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-slate-200 rounded-3xl bg-white/50">
-                      <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-300 mb-6">
+                    <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-white/50 dark:bg-slate-900/50">
+                      <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center text-slate-300 dark:text-slate-700 mb-6">
                         <ImageIcon size={40} />
                       </div>
-                      <h3 className="text-xl font-bold text-slate-800 mb-2">Ready to Scan</h3>
-                      <p className="text-slate-500 max-w-sm">
+                      <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Ready to Scan</h3>
+                      <p className="text-slate-500 dark:text-slate-400 max-w-sm">
                         Upload an image or paste the text of an internship poster to start the AI analysis.
                       </p>
                       <div className="mt-8 grid grid-cols-2 gap-4 w-full max-w-md">
-                        <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm text-left">
+                        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm text-left">
                           <ShieldCheck size={20} className="text-emerald-500 mb-2" />
                           <p className="text-xs font-bold text-slate-400 uppercase mb-1">Step 1</p>
-                          <p className="text-sm font-medium text-slate-700">Provide Poster Content</p>
+                          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Provide Poster Content</p>
                         </div>
-                        <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm text-left">
+                        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm text-left">
                           <ShieldAlert size={20} className="text-indigo-500 mb-2" />
                           <p className="text-xs font-bold text-slate-400 uppercase mb-1">Step 2</p>
-                          <p className="text-sm font-medium text-slate-700">Get Risk Assessment</p>
+                          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Get Risk Assessment</p>
                         </div>
                       </div>
                     </div>
@@ -816,7 +867,7 @@ export default function App() {
                 </AnimatePresence>
               </div>
             </motion.div>
-          ) : (
+          ) : view === "dashboard" ? (
             <motion.div 
               key="dashboard"
               initial={{ opacity: 0, x: 20 }}
@@ -826,36 +877,36 @@ export default function App() {
             >
               {/* Stats Overview */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                    <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                       <TrendingUp size={20} />
                     </div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Scans</span>
                   </div>
-                  <div className="text-3xl font-bold text-slate-900">{stats?.total || 0}</div>
+                  <div className="text-3xl font-bold text-slate-900 dark:text-white">{stats?.total || 0}</div>
                   <p className="text-xs text-slate-500 mt-1">Global community scans</p>
                 </div>
                 
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
+                    <div className="w-10 h-10 bg-rose-50 dark:bg-rose-900/20 rounded-xl flex items-center justify-center text-rose-600 dark:text-rose-400">
                       <ShieldAlert size={20} />
                     </div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Scams Detected</span>
                   </div>
-                  <div className="text-3xl font-bold text-rose-600">{stats?.fake || 0}</div>
+                  <div className="text-3xl font-bold text-rose-600 dark:text-rose-400">{stats?.fake || 0}</div>
                   <p className="text-xs text-slate-500 mt-1">Fraudulent offers blocked</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                    <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                       <ShieldCheck size={20} />
                     </div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Legit Internships</span>
                   </div>
-                  <div className="text-3xl font-bold text-emerald-600">{stats?.real || 0}</div>
+                  <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{stats?.real || 0}</div>
                   <p className="text-xs text-slate-500 mt-1">Verified opportunities</p>
                 </div>
               </div>
@@ -865,37 +916,37 @@ export default function App() {
                 <div className="lg:col-span-2 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <History size={18} className="text-indigo-600" />
-                      <h2 className="font-bold text-slate-800">Recent Scans</h2>
+                      <History size={18} className="text-indigo-600 dark:text-indigo-400" />
+                      <h2 className="font-bold text-slate-800 dark:text-slate-100">Recent Scans</h2>
                     </div>
-                    <button onClick={fetchHistory} className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">Refresh</button>
+                    <button onClick={fetchStats} className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">Refresh</button>
                   </div>
                   
-                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                       <table className="w-full text-left">
                         <thead>
-                          <tr className="bg-slate-50 border-b border-slate-200">
+                          <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                             <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Result</th>
                             <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Confidence</th>
                             <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date</th>
                             <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Action</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                           {history.length > 0 ? history.map((item) => (
-                            <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
+                            <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                               <td className="px-6 py-4">
                                 <span className={cn(
                                   "px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
-                                  item.detectionResult === "FAKE" ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"
+                                  item.detectionResult === "FAKE" ? "bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400" : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
                                 )}>
                                   {item.detectionResult}
                                 </span>
                               </td>
                               <td className="px-6 py-4">
                                 <div className="flex items-center gap-2">
-                                  <div className="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                  <div className="w-12 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                     <div 
                                       className={cn(
                                         "h-full rounded-full",
@@ -904,11 +955,11 @@ export default function App() {
                                       style={{ width: `${item.confidenceLevel}%` }}
                                     />
                                   </div>
-                                  <span className="text-xs font-semibold text-slate-600">{item.confidenceLevel}%</span>
+                                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{item.confidenceLevel}%</span>
                                 </div>
                               </td>
                               <td className="px-6 py-4">
-                                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-500">
                                   <Clock size={12} />
                                   {new Date(item.created_at).toLocaleDateString()}
                                 </div>
@@ -919,7 +970,7 @@ export default function App() {
                                     setResult(item);
                                     setView("scanner");
                                   }}
-                                  className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-indigo-600 transition-all"
+                                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
                                 >
                                   <ArrowRight size={16} />
                                 </button>
@@ -940,7 +991,7 @@ export default function App() {
 
                 {/* Safety Score Card */}
                 <div className="space-y-6">
-                  <div className="bg-indigo-600 rounded-2xl p-6 text-white shadow-xl shadow-indigo-100">
+                  <div className="bg-indigo-600 dark:bg-indigo-700 rounded-2xl p-6 text-white shadow-xl shadow-indigo-100 dark:shadow-none">
                     <h3 className="font-bold text-lg mb-2">Community Safety</h3>
                     <p className="text-indigo-100 text-sm mb-6">Our collective effort is making the internship market safer for everyone.</p>
                     
@@ -972,28 +1023,157 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-                    <h3 className="font-bold text-slate-800 mb-4">Security Insights</h3>
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4">Security Insights</h3>
                     <div className="space-y-4">
                       <div className="flex gap-3">
-                        <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 shrink-0">
+                        <div className="w-8 h-8 bg-amber-50 dark:bg-amber-900/20 rounded-lg flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
                           <AlertTriangle size={16} />
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-slate-800">Rising Scam Type</p>
-                          <p className="text-xs text-slate-500">"Training Fee" scams are up 12% this month.</p>
+                          <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Rising Scam Type</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">"Training Fee" scams are up 12% this month.</p>
                         </div>
                       </div>
                       <div className="flex gap-3">
-                        <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600 shrink-0">
+                        <div className="w-8 h-8 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
                           <Info size={16} />
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-slate-800">Verification Tip</p>
-                          <p className="text-xs text-slate-500">Always check the sender's LinkedIn profile.</p>
+                          <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Verification Tip</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">Always check the sender's LinkedIn profile.</p>
                         </div>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ) : view === "community" ? (
+            <motion.div 
+              key="community"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-8"
+            >
+              <div className="text-center max-w-2xl mx-auto mb-12">
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Community Alerts</h2>
+                <p className="text-slate-500 dark:text-slate-400">Real-time reports from students and interns across the globe. Stay informed, stay safe.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {history.filter(h => h.detectionResult === "FAKE").slice(0, 9).map((item) => (
+                  <div key={item.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="px-2 py-1 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-full text-[10px] font-bold uppercase tracking-wider border border-rose-100 dark:border-rose-900/30">
+                        High Risk
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(item.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-2 line-clamp-2">Scam Alert: Suspicious Internship Offer</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-3">
+                      {item.reasons[0] || "Suspicious patterns detected in this recruitment poster."}
+                    </p>
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                          <UserIcon size={12} />
+                        </div>
+                        <span className="text-xs text-slate-400">Anonymous Reporter</span>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setResult(item);
+                          setView("scanner");
+                        }}
+                        className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-indigo-600 rounded-3xl p-8 text-white text-center">
+                <h3 className="text-2xl font-bold mb-4">Found a suspicious poster?</h3>
+                <p className="text-indigo-100 mb-8 max-w-md mx-auto">Help the community by scanning and reporting it. Your contribution saves others from fraud.</p>
+                <button 
+                  onClick={() => setView("scanner")}
+                  className="bg-white text-indigo-600 px-8 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-colors"
+                >
+                  Report a Scam
+                </button>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="encyclopedia"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="space-y-12"
+            >
+              <div className="text-center max-w-2xl mx-auto">
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Scam Encyclopedia</h2>
+                <p className="text-slate-500 dark:text-slate-400">Knowledge is your best defense. Learn about common scam tactics used in the internship market.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <ShieldAlert size={24} className="text-rose-500" />
+                    Common Scam Types
+                  </h3>
+                  
+                  <div className="space-y-4">
+                    {[
+                      { title: "The Training Fee Scam", desc: "Recruiters ask for a 'refundable' security deposit or training fee before you start. Legitimate companies NEVER ask for money." },
+                      { title: "Identity Theft", desc: "Scammers ask for sensitive documents like Aadhaar, PAN, or bank details early in the process to steal your identity." },
+                      { title: "The Data Entry Trap", desc: "Unrealistic pay for simple tasks. They often claim you made an error and demand 'penalty' fees to release your salary." },
+                      { title: "The Fake Certificate", desc: "Selling internship certificates without any actual work. These are worthless and can get you blacklisted by real companies." }
+                    ].map((scam, i) => (
+                      <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <h4 className="font-bold text-slate-800 dark:text-slate-100 mb-2">{scam.title}</h4>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">{scam.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <CheckCircle2 size={24} className="text-emerald-500" />
+                    Verification Checklist
+                  </h3>
+                  
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                    {[
+                      "Check the company's official website and LinkedIn page.",
+                      "Verify the recruiter's email domain (no @gmail.com).",
+                      "Search for the company name + 'scam' on Google/Reddit.",
+                      "Never pay any amount for an internship opportunity.",
+                      "Ask for a formal offer letter on company letterhead.",
+                      "Verify the office address on Google Maps."
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-800 last:border-0">
+                        <div className="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                          <CheckCircle2 size={14} />
+                        </div>
+                        <span className="text-sm text-slate-600 dark:text-slate-300">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-6">
+                    <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 mb-2">
+                      <AlertTriangle size={18} />
+                      <h4 className="font-bold">Pro Tip</h4>
+                    </div>
+                    <p className="text-sm text-amber-600 dark:text-amber-500">
+                      If an offer sounds too good to be true, it probably is. Trust your gut and use InternGuard AI to verify.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1003,20 +1183,20 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-12 mt-12">
-        <div className="max-w-5xl mx-auto px-4 text-center">
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-12 mt-12 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <ShieldAlert size={20} className="text-indigo-600" />
-            <span className="font-bold tracking-tight">InternGuard AI</span>
+            <ShieldAlert size={20} className="text-indigo-600 dark:text-indigo-400" />
+            <span className="font-bold tracking-tight text-slate-900 dark:text-white">InternGuard AI</span>
           </div>
-          <p className="text-sm text-slate-500 max-w-md mx-auto mb-8">
+          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-8">
             Protecting the next generation of talent from fraudulent recruitment practices. 
             Always verify before you apply.
           </p>
           <div className="flex items-center justify-center gap-6 text-xs font-bold text-slate-400 uppercase tracking-widest">
-            <a href="#" className="hover:text-slate-900 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-slate-900 transition-colors">Terms</a>
-            <a href="#" className="hover:text-slate-900 transition-colors">Contact</a>
+            <a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Contact</a>
           </div>
         </div>
       </footer>
